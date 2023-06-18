@@ -1,38 +1,65 @@
-// Função para buscar significado da palavra
-async function searchWord() {
-  const input = document.getElementById('search-input').value;
-  const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Proxy CORS Anywhere
-  const apiUrl = `https://api.dicionario-aberto.net/word/${input}`;
+var input = document.querySelector('input');
+var list = document.querySelector('.suggestions');
+var btn = document.querySelector('button');
 
-  try {
-    const response = await fetch(proxyUrl + apiUrl);
-    const data = await response.json();
+var modal = document.querySelector('.modal');
+var item = document.querySelector('li');
 
-    // Exibir significado no elemento 'search-result'
-    const searchResult = document.getElementById('search-result');
-    searchResult.innerHTML = '';
+var close = document.querySelector('.fa-times');
 
-    data.forEach(entry => {
-      const word = entry.word;
-      const definition = entry.xml;
-
-      const wordElement = document.createElement('h3');
-      wordElement.textContent = word;
-
-      const definitionElement = document.createElement('p');
-      definitionElement.innerHTML = definition;
-
-      searchResult.appendChild(wordElement);
-      searchResult.appendChild(definitionElement);
-    });
-  } catch (error) {
-    console.error('Erro ao buscar palavra:', error);
-  }
+async function words() {
+    list.innerHTML = '';
+    var quest = input.value;
+    await fetch(`https://api.dicionario-aberto.net/infix/${quest}`)
+        .then((res) => {
+            return res.json();
+        })
+        .then((res) => {
+            //console.log(res);
+            if (res.status != 'error') {
+                console.log(Object.keys(res).length);
+                for (data in res) {
+                    list.innerHTML += `<li onclick=meanings(this) data-id=${res[data].word} > ${res[data].word}</li > `;
+                }
+            } else {
+                list.innerHTML = `< li > ${res.error}</li > `
+            }
+        });
 }
 
-// Event listener para o formulário de busca
-const searchForm = document.getElementById('search-form');
-searchForm.addEventListener('submit', e => {
-  e.preventDefault();
-  searchWord();
+async function meanings(e) {
+    modal.innerHTML = '';
+    var word = e.getAttribute("data-id");
+    //console.log(word);
+    await fetch(`https://api.dicionario-aberto.net/word/${word}`)
+        .then((res) => {
+            return res.json();
+        })
+        .then((res) => {
+            console.log(res);
+            for (data in res) {
+                modal.innerHTML += `<li> ${res[data].xml}</li > `;
+            }
+        });
+
+    close.style.opacity = '100%';
+    modal.style.height = '40%';
+    modal.style.width = '60%';
+}
+
+function closeModal() {
+    close.style.opacity = '0%';
+    modal.style.height = '0';
+    modal.style.width = '0';
+}
+
+btn.addEventListener('click', words);
+input.addEventListener('keyup', () => btn.disabled = false);
+
+document.addEventListener('keypress', (evento) => {
+    if (evento.key === 'Enter') {
+        btn.click();
+    }
 });
+
+close.addEventListener('click', closeModal);
