@@ -30,8 +30,8 @@ async function searchWord() {
 }
 
 // Event listener para o formulário de busca
-const searchForm = document.getElementById('search-form');
-searchForm.addEventListener('submit', e => {
+const searchButton = document.querySelector('.search-button');
+searchButton.addEventListener('click', e => {
   e.preventDefault();
   searchWord();
 });
