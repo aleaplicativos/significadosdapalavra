@@ -1,10 +1,11 @@
 // Função para buscar significado da palavra
 async function searchWord() {
   const input = document.getElementById('search-input').value;
+  const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Proxy CORS Anywhere
   const apiUrl = `https://api.dicionario-aberto.net/word/${input}`;
 
   try {
-    const response = await fetch(apiUrl);
+    const response = await fetch(proxyUrl + apiUrl);
     const data = await response.json();
 
     // Exibir significado no elemento 'search-result'
@@ -30,8 +31,8 @@ async function searchWord() {
 }
 
 // Event listener para o formulário de busca
-const searchButton = document.querySelector('.search-button');
-searchButton.addEventListener('click', e => {
+const searchForm = document.getElementById('search-form');
+searchForm.addEventListener('submit', e => {
   e.preventDefault();
   searchWord();
 });
